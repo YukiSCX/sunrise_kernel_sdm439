@@ -50,7 +50,7 @@ def gen_version_h(verbose, gen_dir, version_makefile):
   sublevel_str = None
 
   if verbose:
-    print('gen_version_h: processing [%s]' % version_makefile)
+    print(f'gen_version_h: processing [{version_makefile}]')
 
   with open(version_makefile, 'r') as f:
     while not version_str or not patchlevel_str or not sublevel_str:
@@ -58,39 +58,34 @@ def gen_version_h(verbose, gen_dir, version_makefile):
 
       if not line:
         print(
-            'error: gen_version_h: failed to parse kernel version from %s' %
-            version_makefile)
+            f'error: gen_version_h: failed to parse kernel version from {version_makefile}'
+        )
         return False
 
       line = line.rstrip()
 
       if verbose:
-        print('gen_version_h: line is %s' % line)
+        print(f'gen_version_h: line is {line}')
 
       if not version_str:
-        match = version_re.match(line)
-        if match:
+        if match := version_re.match(line):
           if verbose:
             print('gen_version_h: matched version [%s]' % line)
-          version_str = match.group(1)
+          version_str = match[1]
           continue
 
       if not patchlevel_str:
-        match = patchlevel_re.match(line)
-        if match:
+        if match := patchlevel_re.match(line):
           if verbose:
             print('gen_version_h: matched patchlevel [%s]' % line)
-          patchlevel_str = match.group(1)
+          patchlevel_str = match[1]
           continue
 
       if not sublevel_str:
-        match = sublevel_re.match(line)
-        if match:
+        if match := sublevel_re.match(line):
           if verbose:
             print('gen_version_h: matched sublevel [%s]' % line)
-          sublevel_str = match.group(1)
-          continue
-
+          sublevel_str = match[1]
   version = int(version_str)
   patchlevel = int(patchlevel_str)
   sublevel = int(sublevel_str)
@@ -141,7 +136,7 @@ def scan_arch_kbuild(verbose, arch_asm_kbuild, asm_generic_kbuild, arch_include_
   # This loop parses arch_asm_kbuild for various kinds of headers to generate.
 
   if verbose:
-    print('scan_arch_kbuild: processing [%s]' % arch_asm_kbuild)
+    print(f'scan_arch_kbuild: processing [{arch_asm_kbuild}]')
 
   generated_list = []
   generic_list = []
@@ -160,28 +155,24 @@ def scan_arch_kbuild(verbose, arch_asm_kbuild, asm_generic_kbuild, arch_include_
       line = line.rstrip()
 
       if verbose:
-        print('scan_arch_kbuild: line is %s' % line)
+        print(f'scan_arch_kbuild: line is {line}')
 
-      match = generated_y_re.match(line)
-
-      if match:
+      if match := generated_y_re.match(line):
         if verbose:
-          print('scan_arch_kbuild: matched [%s]' % line)
-        generated_list.append(match.group(1))
+          print(f'scan_arch_kbuild: matched [{line}]')
+        generated_list.append(match[1])
         continue
 
-      match = generic_y_re.match(line)
-
-      if match:
+      if match := generic_y_re.match(line):
         if verbose:
-          print('scan_arch_kbuild: matched [%s]' % line)
-        generic_list.append(match.group(1))
+          print(f'scan_arch_kbuild: matched [{line}]')
+        generic_list.append(match[1])
         continue
 
   # This loop parses asm_generic_kbuild for various kinds of headers to generate.
 
   if verbose:
-    print('scan_arch_kbuild: processing [%s]' % asm_generic_kbuild)
+    print(f'scan_arch_kbuild: processing [{asm_generic_kbuild}]')
 
   with open(asm_generic_kbuild, 'r') as f:
     while True:
@@ -193,14 +184,12 @@ def scan_arch_kbuild(verbose, arch_asm_kbuild, asm_generic_kbuild, arch_include_
       line = line.rstrip()
 
       if verbose:
-        print('scan_arch_kbuild: line is %s' % line)
+        print(f'scan_arch_kbuild: line is {line}')
 
-      match = mandatory_y_re.match(line)
-
-      if match:
+      if match := mandatory_y_re.match(line):
         if verbose:
-          print('scan_arch_kbuild: matched [%s]' % line)
-        mandatory_pre_list.append(match.group(1))
+          print(f'scan_arch_kbuild: matched [{line}]')
+        mandatory_pre_list.append(match[1])
         continue
 
   # Mandatory headers need to be generated if they are not already generated.
@@ -265,10 +254,8 @@ def gen_arch_headers(
 
   for generated in generated_list:
     gen_h = os.path.join(gen_dir, 'asm', generated)
-    match = abi_re.match(generated)
-
-    if match:
-      abi = match.group(1)
+    if match := abi_re.match(generated):
+      abi = match[1]
 
       cmd = [
           '/bin/bash',
@@ -281,7 +268,7 @@ def gen_arch_headers(
       ]
 
       if verbose:
-        print('gen_arch_headers: cmd is %s' % cmd)
+        print(f'gen_arch_headers: cmd is {cmd}')
 
       result = subprocess.call(cmd)
 
@@ -289,7 +276,7 @@ def gen_arch_headers(
         print('error: gen_arch_headers: cmd %s failed %d' % (cmd, result))
         error_count += 1
     else:
-      print('error: gen_arch_headers: syscall header has bad filename: %s' % generated)
+      print(f'error: gen_arch_headers: syscall header has bad filename: {generated}')
       error_count += 1
 
   # Now we're at the second loop, which generates wrappers from arch-specific
@@ -332,7 +319,7 @@ def run_headers_install(verbose, gen_dir, headers_install, prefix, h):
   """
 
   if not h.startswith(prefix):
-    print('error: expected prefix [%s] on header [%s]' % (prefix, h))
+    print(f'error: expected prefix [{prefix}] on header [{h}]')
     return False
 
   out_h = os.path.join(gen_dir, h[len(prefix):])
@@ -342,7 +329,7 @@ def run_headers_install(verbose, gen_dir, headers_install, prefix, h):
   cmd = [headers_install, out_h_dirname, h_dirname, out_h_basename]
 
   if verbose:
-    print('run_headers_install: cmd is %s' % cmd)
+    print(f'run_headers_install: cmd is {cmd}')
 
   result = subprocess.call(cmd)
 
@@ -441,27 +428,27 @@ def find_out(verbose, module_dir, prefix, rel_glob, excludes, outs):
   prefix_sep = prefix + os.sep
 
   if verbose:
-    print('find_out: module_dir_sep [%s]' % module_dir_sep)
-    print('find_out: prefix_sep [%s]' % prefix_sep)
+    print(f'find_out: module_dir_sep [{module_dir_sep}]')
+    print(f'find_out: prefix_sep [{prefix_sep}]')
 
   error_count = 0
 
   for full_src in full_srcs:
     if verbose:
-      print('find_out: full_src [%s]' % full_src)
+      print(f'find_out: full_src [{full_src}]')
 
     if not full_src.startswith(module_dir_sep):
-      print('error: expected %s to start with %s' % (full_src, module_dir_sep))
+      print(f'error: expected {full_src} to start with {module_dir_sep}')
       error_count += 1
       continue
 
     local_src = full_src[len(module_dir_sep):]
 
     if verbose:
-      print('find_out: local_src [%s]' % local_src)
+      print(f'find_out: local_src [{local_src}]')
 
     if not local_src.startswith(prefix_sep):
-      print('error: expected %s to start with %s' % (local_src, prefix_sep))
+      print(f'error: expected {local_src} to start with {prefix_sep}')
       error_count += 1
       continue
 
@@ -472,7 +459,7 @@ def find_out(verbose, module_dir, prefix, rel_glob, excludes, outs):
     local_out = local_src[len(prefix_sep):]
 
     if verbose:
-      print('find_out: local_out [%s]' % local_out)
+      print(f'find_out: local_out [{local_out}]')
 
     outs.append(local_out)
 
@@ -499,7 +486,7 @@ def scan_no_export_headers(verbose, module_dir, prefix):
   full_dirs = [full_dirs_]
 
   if verbose:
-    print('scan_no_export_headers: processing [%s]' % full_dirs)
+    print(f'scan_no_export_headers: processing [{full_dirs}]')
 
   full_srcs = []
   no_export_headers_lists = []
@@ -528,19 +515,16 @@ def scan_no_export_headers(verbose, module_dir, prefix):
 
         line = line.rstrip()
 
-        match = no_export_headers_re.match(line)
-
-        if match:
+        if match := no_export_headers_re.match(line):
           if verbose:
-            print('scan_no_export_headers: matched [%s]' % line)
+            print(f'scan_no_export_headers: matched [{line}]')
 
-          if (match.group(1) == "kvm.h" or
-              match.group(1) == "kvm_para.h" or
-              match.group(1) == "a.out.h"):
-              continue
+          if match[1] in ["kvm.h", "kvm_para.h", "a.out.h"]:
+            continue
 
           (full_src_dir_name, full_src_base_name) = full_src.split('include/uapi/')
-          no_export_header_file_name = os.path.join(os.path.dirname(full_src_base_name),match.group(1))
+          no_export_header_file_name = os.path.join(
+              os.path.dirname(full_src_base_name), match[1])
 
           if verbose:
             print('scan_no_export_headers: no_export_header_file_name = ',no_export_header_file_name)
@@ -550,7 +534,7 @@ def scan_no_export_headers(verbose, module_dir, prefix):
 
   if verbose:
     for x in no_export_headers_lists:
-      print('scan_no_export_headers: no_export_headers_lists [%s]' % x)
+      print(f'scan_no_export_headers: no_export_headers_lists [{x}]')
 
   return no_export_headers_lists
 

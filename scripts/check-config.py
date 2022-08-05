@@ -69,8 +69,6 @@ def walk_config(name):
             if m:
                 continue
 
-            print "WARNING: Unknown .config line: ", line
-
 class Checker():
     def __init__(self):
         self.required = {}

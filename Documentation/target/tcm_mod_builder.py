@@ -40,39 +40,35 @@ def tcm_mod_build_FC_include(fabric_mod_dir_var, fabric_mod_name):
 	global fabric_mod_init_port
 	buf = ""
 
-	f = fabric_mod_dir_var + "/" + fabric_mod_name + "_base.h"
-	print "Writing file: " + f
+	f = f"{fabric_mod_dir_var}/{fabric_mod_name}_base.h"
+	global fabric_mod_port
+	with open(f, 'w') as p:
+		if not p:
+			tcm_mod_err(f"Unable to open file: {f}")
 
-	p = open(f, 'w');
-	if not p:
-		tcm_mod_err("Unable to open file: " + f)
+		buf = f"#define {fabric_mod_name.upper()}" + "_VERSION	\"v0.1\"\n"
+		buf += f"#define {fabric_mod_name.upper()}" + "_NAMELEN	32\n"
+		buf += "\n"
+		buf += f"struct {fabric_mod_name}" + "_tpg {\n"
+		buf += "	/* FC lport target portal group tag for TCM */\n"
+		buf += "	u16 lport_tpgt;\n"
+		buf += "	/* Pointer back to " + fabric_mod_name + "_lport */\n"
+		buf += "	struct " + fabric_mod_name + "_lport *lport;\n"
+		buf += "	/* Returned by " + fabric_mod_name + "_make_tpg() */\n"
+		buf += "	struct se_portal_group se_tpg;\n"
+		buf += "};\n"
+		buf += "\n"
+		buf += f"struct {fabric_mod_name}" + "_lport {\n"
+		buf += "	/* Binary World Wide unique Port Name for FC Target Lport */\n"
+		buf += "	u64 lport_wwpn;\n"
+		buf += "	/* ASCII formatted WWPN for FC Target Lport */\n"
+		buf += "	char lport_name[" + fabric_mod_name.upper() + "_NAMELEN];\n"
+		buf += "	/* Returned by " + fabric_mod_name + "_make_lport() */\n"
+		buf += "	struct se_wwn lport_wwn;\n"
+		buf += "};\n"
 
-	buf = "#define " + fabric_mod_name.upper() + "_VERSION	\"v0.1\"\n"
-	buf += "#define " + fabric_mod_name.upper() + "_NAMELEN	32\n"
-	buf += "\n"
-	buf += "struct " + fabric_mod_name + "_tpg {\n"
-	buf += "	/* FC lport target portal group tag for TCM */\n"
-	buf += "	u16 lport_tpgt;\n"
-	buf += "	/* Pointer back to " + fabric_mod_name + "_lport */\n"
-	buf += "	struct " + fabric_mod_name + "_lport *lport;\n"
-	buf += "	/* Returned by " + fabric_mod_name + "_make_tpg() */\n"
-	buf += "	struct se_portal_group se_tpg;\n"
-	buf += "};\n"
-	buf += "\n"
-	buf += "struct " + fabric_mod_name + "_lport {\n"
-	buf += "	/* Binary World Wide unique Port Name for FC Target Lport */\n"
-	buf += "	u64 lport_wwpn;\n"
-	buf += "	/* ASCII formatted WWPN for FC Target Lport */\n"
-	buf += "	char lport_name[" + fabric_mod_name.upper() + "_NAMELEN];\n"
-	buf += "	/* Returned by " + fabric_mod_name + "_make_lport() */\n"
-	buf += "	struct se_wwn lport_wwn;\n"
-	buf += "};\n"
-
-	ret = p.write(buf)
-	if ret:
-		tcm_mod_err("Unable to write f: " + f)
-
-	p.close()
+		if ret := p.write(buf):
+			tcm_mod_err(f"Unable to write f: {f}")
 
 	fabric_mod_port = "lport"
 	fabric_mod_init_port = "nport"
@@ -84,38 +80,34 @@ def tcm_mod_build_SAS_include(fabric_mod_dir_var, fabric_mod_name):
 	global fabric_mod_init_port
 	buf = ""
 
-	f = fabric_mod_dir_var + "/" + fabric_mod_name + "_base.h"
-	print "Writing file: " + f
+	f = f"{fabric_mod_dir_var}/{fabric_mod_name}_base.h"
+	global fabric_mod_port
+	with open(f, 'w') as p:
+		if not p:
+			tcm_mod_err(f"Unable to open file: {f}")
 
-	p = open(f, 'w');
-	if not p:
-		tcm_mod_err("Unable to open file: " + f)
+		buf = f"#define {fabric_mod_name.upper()}" + "_VERSION  \"v0.1\"\n"
+		buf += f"#define {fabric_mod_name.upper()}" + "_NAMELEN 32\n"
+		buf += "\n"
+		buf += f"struct {fabric_mod_name}" + "_tpg {\n"
+		buf += "	/* SAS port target portal group tag for TCM */\n"
+		buf += "	u16 tport_tpgt;\n"
+		buf += "	/* Pointer back to " + fabric_mod_name + "_tport */\n"
+		buf += "	struct " + fabric_mod_name + "_tport *tport;\n"
+		buf += "	/* Returned by " + fabric_mod_name + "_make_tpg() */\n"
+		buf += "	struct se_portal_group se_tpg;\n"
+		buf += "};\n\n"
+		buf += f"struct {fabric_mod_name}" + "_tport {\n"
+		buf += "	/* Binary World Wide unique Port Name for SAS Target port */\n"
+		buf += "	u64 tport_wwpn;\n"
+		buf += "	/* ASCII formatted WWPN for SAS Target port */\n"
+		buf += "	char tport_name[" + fabric_mod_name.upper() + "_NAMELEN];\n"
+		buf += "	/* Returned by " + fabric_mod_name + "_make_tport() */\n"
+		buf += "	struct se_wwn tport_wwn;\n"
+		buf += "};\n"
 
-	buf = "#define " + fabric_mod_name.upper() + "_VERSION  \"v0.1\"\n"
-	buf += "#define " + fabric_mod_name.upper() + "_NAMELEN 32\n"
-	buf += "\n"
-	buf += "struct " + fabric_mod_name + "_tpg {\n"
-	buf += "	/* SAS port target portal group tag for TCM */\n"
-	buf += "	u16 tport_tpgt;\n"
-	buf += "	/* Pointer back to " + fabric_mod_name + "_tport */\n"
-	buf += "	struct " + fabric_mod_name + "_tport *tport;\n"
-	buf += "	/* Returned by " + fabric_mod_name + "_make_tpg() */\n"
-	buf += "	struct se_portal_group se_tpg;\n"
-	buf += "};\n\n"
-	buf += "struct " + fabric_mod_name + "_tport {\n"
-	buf += "	/* Binary World Wide unique Port Name for SAS Target port */\n"
-	buf += "	u64 tport_wwpn;\n"
-	buf += "	/* ASCII formatted WWPN for SAS Target port */\n"
-	buf += "	char tport_name[" + fabric_mod_name.upper() + "_NAMELEN];\n"
-	buf += "	/* Returned by " + fabric_mod_name + "_make_tport() */\n"
-	buf += "	struct se_wwn tport_wwn;\n"
-	buf += "};\n"
-
-	ret = p.write(buf)
-	if ret:
-		tcm_mod_err("Unable to write f: " + f)
-
-	p.close()
+		if ret := p.write(buf):
+			tcm_mod_err(f"Unable to write f: {f}")
 
 	fabric_mod_port = "tport"
 	fabric_mod_init_port = "iport"
@@ -127,36 +119,32 @@ def tcm_mod_build_iSCSI_include(fabric_mod_dir_var, fabric_mod_name):
 	global fabric_mod_init_port
 	buf = ""
 
-	f = fabric_mod_dir_var + "/" + fabric_mod_name + "_base.h"
-	print "Writing file: " + f
+	f = f"{fabric_mod_dir_var}/{fabric_mod_name}_base.h"
+	global fabric_mod_port
+	with open(f, 'w') as p:
+		if not p:
+			tcm_mod_err(f"Unable to open file: {f}")
 
-	p = open(f, 'w');
-	if not p:
-		tcm_mod_err("Unable to open file: " + f)
+		buf = f"#define {fabric_mod_name.upper()}" + "_VERSION  \"v0.1\"\n"
+		buf += f"#define {fabric_mod_name.upper()}" + "_NAMELEN 32\n"
+		buf += "\n"
+		buf += f"struct {fabric_mod_name}" + "_tpg {\n"
+		buf += "	/* iSCSI target portal group tag for TCM */\n"
+		buf += "	u16 tport_tpgt;\n"
+		buf += "	/* Pointer back to " + fabric_mod_name + "_tport */\n"
+		buf += "	struct " + fabric_mod_name + "_tport *tport;\n"
+		buf += "	/* Returned by " + fabric_mod_name + "_make_tpg() */\n"
+		buf += "	struct se_portal_group se_tpg;\n"
+		buf += "};\n\n"
+		buf += f"struct {fabric_mod_name}" + "_tport {\n"
+		buf += "	/* ASCII formatted TargetName for IQN */\n"
+		buf += "	char tport_name[" + fabric_mod_name.upper() + "_NAMELEN];\n"
+		buf += "	/* Returned by " + fabric_mod_name + "_make_tport() */\n"
+		buf += "	struct se_wwn tport_wwn;\n"
+		buf += "};\n"
 
-	buf = "#define " + fabric_mod_name.upper() + "_VERSION  \"v0.1\"\n"
-	buf += "#define " + fabric_mod_name.upper() + "_NAMELEN 32\n"
-	buf += "\n"
-	buf += "struct " + fabric_mod_name + "_tpg {\n"
-	buf += "	/* iSCSI target portal group tag for TCM */\n"
-	buf += "	u16 tport_tpgt;\n"
-	buf += "	/* Pointer back to " + fabric_mod_name + "_tport */\n"
-	buf += "	struct " + fabric_mod_name + "_tport *tport;\n"
-	buf += "	/* Returned by " + fabric_mod_name + "_make_tpg() */\n"
-	buf += "	struct se_portal_group se_tpg;\n"
-	buf += "};\n\n"
-	buf += "struct " + fabric_mod_name + "_tport {\n"
-	buf += "	/* ASCII formatted TargetName for IQN */\n"
-	buf += "	char tport_name[" + fabric_mod_name.upper() + "_NAMELEN];\n"
-	buf += "	/* Returned by " + fabric_mod_name + "_make_tport() */\n"
-	buf += "	struct se_wwn tport_wwn;\n"
-	buf += "};\n"
-
-	ret = p.write(buf)
-	if ret:
-		tcm_mod_err("Unable to write f: " + f)
-
-	p.close()
+		if ret := p.write(buf):
+			tcm_mod_err(f"Unable to write f: {f}")
 
 	fabric_mod_port = "tport"
 	fabric_mod_init_port = "iport"
@@ -180,195 +168,209 @@ def tcm_mod_build_base_includes(proto_ident, fabric_mod_dir_val, fabric_mod_name
 def tcm_mod_build_configfs(proto_ident, fabric_mod_dir_var, fabric_mod_name):
 	buf = ""
 
-	f = fabric_mod_dir_var + "/" + fabric_mod_name + "_configfs.c"
-	print "Writing file: " + f
+	f = f"{fabric_mod_dir_var}/{fabric_mod_name}_configfs.c"
+	buf = ""
 
-        p = open(f, 'w');
-        if not p:
-                tcm_mod_err("Unable to open file: " + f)
+	with open(f, 'w') as p:
+		if not p:
+			tcm_mod_err(f"Unable to open file: {f}")
 
-	buf = "#include <linux/module.h>\n"
-	buf += "#include <linux/moduleparam.h>\n"
-	buf += "#include <linux/version.h>\n"
-	buf += "#include <generated/utsrelease.h>\n"
-	buf += "#include <linux/utsname.h>\n"
-	buf += "#include <linux/init.h>\n"
-	buf += "#include <linux/slab.h>\n"
-	buf += "#include <linux/kthread.h>\n"
-	buf += "#include <linux/types.h>\n"
-	buf += "#include <linux/string.h>\n"
-	buf += "#include <linux/configfs.h>\n"
-	buf += "#include <linux/ctype.h>\n"
-	buf += "#include <asm/unaligned.h>\n"
-	buf += "#include <scsi/scsi_proto.h>\n\n"
-	buf += "#include <target/target_core_base.h>\n"
-	buf += "#include <target/target_core_fabric.h>\n"
-	buf += "#include \"" + fabric_mod_name + "_base.h\"\n"
-	buf += "#include \"" + fabric_mod_name + "_fabric.h\"\n\n"
+		buf = "#include <linux/module.h>\n" + "#include <linux/moduleparam.h>\n"
+		buf += "#include <linux/version.h>\n"
+		buf += "#include <generated/utsrelease.h>\n"
+		buf += "#include <linux/utsname.h>\n"
+		buf += "#include <linux/init.h>\n"
+		buf += "#include <linux/slab.h>\n"
+		buf += "#include <linux/kthread.h>\n"
+		buf += "#include <linux/types.h>\n"
+		buf += "#include <linux/string.h>\n"
+		buf += "#include <linux/configfs.h>\n"
+		buf += "#include <linux/ctype.h>\n"
+		buf += "#include <asm/unaligned.h>\n"
+		buf += "#include <scsi/scsi_proto.h>\n\n"
+		buf += "#include <target/target_core_base.h>\n"
+		buf += "#include <target/target_core_fabric.h>\n"
+		buf += "#include \"" + fabric_mod_name + "_base.h\"\n"
+		buf += "#include \"" + fabric_mod_name + "_fabric.h\"\n\n"
 
-	buf += "static const struct target_core_fabric_ops " + fabric_mod_name + "_ops;\n\n"
+		buf += (
+			f"static const struct target_core_fabric_ops {fabric_mod_name}"
+			+ "_ops;\n\n"
+		)
 
-	buf += "static struct se_portal_group *" + fabric_mod_name + "_make_tpg(\n"
-	buf += "	struct se_wwn *wwn,\n"
-	buf += "	struct config_group *group,\n"
-	buf += "	const char *name)\n"
-	buf += "{\n"
-	buf += "	struct " + fabric_mod_name + "_" + fabric_mod_port + "*" + fabric_mod_port + " = container_of(wwn,\n"
-	buf += "			struct " + fabric_mod_name + "_" + fabric_mod_port + ", " + fabric_mod_port + "_wwn);\n\n"
-	buf += "	struct " + fabric_mod_name + "_tpg *tpg;\n"
-	buf += "	unsigned long tpgt;\n"
-	buf += "	int ret;\n\n"
-	buf += "	if (strstr(name, \"tpgt_\") != name)\n"
-	buf += "		return ERR_PTR(-EINVAL);\n"
-	buf += "	if (kstrtoul(name + 5, 10, &tpgt) || tpgt > UINT_MAX)\n"
-	buf += "		return ERR_PTR(-EINVAL);\n\n"
-	buf += "	tpg = kzalloc(sizeof(struct " + fabric_mod_name + "_tpg), GFP_KERNEL);\n"
-	buf += "	if (!tpg) {\n"
-	buf += "		printk(KERN_ERR \"Unable to allocate struct " + fabric_mod_name + "_tpg\");\n"
-	buf += "		return ERR_PTR(-ENOMEM);\n"
-	buf += "	}\n"
-	buf += "	tpg->" + fabric_mod_port + " = " + fabric_mod_port + ";\n"
-	buf += "	tpg->" + fabric_mod_port + "_tpgt = tpgt;\n\n"
 
-	if proto_ident == "FC":
-		buf += "	ret = core_tpg_register(wwn, &tpg->se_tpg, SCSI_PROTOCOL_FCP);\n"
-	elif proto_ident == "SAS":
-		buf += "	ret = core_tpg_register(wwn, &tpg->se_tpg, SCSI_PROTOCOL_SAS);\n"
-	elif proto_ident == "iSCSI":
-		buf += "	ret = core_tpg_register(wwn, &tpg->se_tpg, SCSI_PROTOCOL_ISCSI);\n"
+		buf += f"static struct se_portal_group *{fabric_mod_name}" + "_make_tpg(\n"
+		buf += "	struct se_wwn *wwn,\n"
+		buf += "	struct config_group *group,\n"
+		buf += "	const char *name)\n"
+		buf += "{\n"
+		buf += "	struct " + fabric_mod_name + "_" + fabric_mod_port + "*" + fabric_mod_port + " = container_of(wwn,\n"
+		buf += "			struct " + fabric_mod_name + "_" + fabric_mod_port + ", " + fabric_mod_port + "_wwn);\n\n"
+		buf += "	struct " + fabric_mod_name + "_tpg *tpg;\n"
+		buf += "	unsigned long tpgt;\n"
+		buf += "	int ret;\n\n"
+		buf += "	if (strstr(name, \"tpgt_\") != name)\n"
+		buf += "		return ERR_PTR(-EINVAL);\n"
+		buf += "	if (kstrtoul(name + 5, 10, &tpgt) || tpgt > UINT_MAX)\n"
+		buf += "		return ERR_PTR(-EINVAL);\n\n"
+		buf += "	tpg = kzalloc(sizeof(struct " + fabric_mod_name + "_tpg), GFP_KERNEL);\n"
+		buf += "	if (!tpg) {\n"
+		buf += "		printk(KERN_ERR \"Unable to allocate struct " + fabric_mod_name + "_tpg\");\n"
+		buf += "		return ERR_PTR(-ENOMEM);\n"
+		buf += "	}\n"
+		buf += "	tpg->" + fabric_mod_port + " = " + fabric_mod_port + ";\n"
+		buf += "	tpg->" + fabric_mod_port + "_tpgt = tpgt;\n\n"
 
-	buf += "	if (ret < 0) {\n"
-	buf += "		kfree(tpg);\n"
-	buf += "		return NULL;\n"
-	buf += "	}\n"
-	buf += "	return &tpg->se_tpg;\n"
-	buf += "}\n\n"
-	buf += "static void " + fabric_mod_name + "_drop_tpg(struct se_portal_group *se_tpg)\n"
-	buf += "{\n"
-	buf += "	struct " + fabric_mod_name + "_tpg *tpg = container_of(se_tpg,\n"
-	buf += "				struct " + fabric_mod_name + "_tpg, se_tpg);\n\n"
-	buf += "	core_tpg_deregister(se_tpg);\n"
-	buf += "	kfree(tpg);\n"
-	buf += "}\n\n"
+		if proto_ident == "FC":
+			buf += "	ret = core_tpg_register(wwn, &tpg->se_tpg, SCSI_PROTOCOL_FCP);\n"
+		elif proto_ident == "SAS":
+			buf += "	ret = core_tpg_register(wwn, &tpg->se_tpg, SCSI_PROTOCOL_SAS);\n"
+		elif proto_ident == "iSCSI":
+			buf += "	ret = core_tpg_register(wwn, &tpg->se_tpg, SCSI_PROTOCOL_ISCSI);\n"
 
-	buf += "static struct se_wwn *" + fabric_mod_name + "_make_" + fabric_mod_port + "(\n"
-	buf += "	struct target_fabric_configfs *tf,\n"
-	buf += "	struct config_group *group,\n"
-	buf += "	const char *name)\n"
-	buf += "{\n"
-	buf += "	struct " + fabric_mod_name + "_" + fabric_mod_port + " *" + fabric_mod_port + ";\n"
+		buf += "	if (ret < 0) {\n"
+		buf += "		kfree(tpg);\n"
+		buf += "		return NULL;\n"
+		buf += "	}\n"
+		buf += "	return &tpg->se_tpg;\n"
+		buf += "}\n\n"
+		buf += (
+			f"static void {fabric_mod_name}"
+			+ "_drop_tpg(struct se_portal_group *se_tpg)\n"
+		)
 
-	if proto_ident == "FC" or proto_ident == "SAS":
-		buf += "	u64 wwpn = 0;\n\n"
+		buf += "{\n"
+		buf += "	struct " + fabric_mod_name + "_tpg *tpg = container_of(se_tpg,\n"
+		buf += "				struct " + fabric_mod_name + "_tpg, se_tpg);\n\n"
+		buf += "	core_tpg_deregister(se_tpg);\n"
+		buf += "	kfree(tpg);\n"
+		buf += "}\n\n"
 
-	buf += "	/* if (" + fabric_mod_name + "_parse_wwn(name, &wwpn, 1) < 0)\n"
-	buf += "		return ERR_PTR(-EINVAL); */\n\n"
-	buf += "	" + fabric_mod_port + " = kzalloc(sizeof(struct " + fabric_mod_name + "_" + fabric_mod_port + "), GFP_KERNEL);\n"
-	buf += "	if (!" + fabric_mod_port + ") {\n"
-	buf += "		printk(KERN_ERR \"Unable to allocate struct " + fabric_mod_name + "_" + fabric_mod_port + "\");\n"
-	buf += "		return ERR_PTR(-ENOMEM);\n"
-	buf += "	}\n"
+		buf += (
+			f"static struct se_wwn *{fabric_mod_name}_make_{fabric_mod_port}" + "(\n"
+		)
 
-	if proto_ident == "FC" or proto_ident == "SAS":
-		buf += "	" + fabric_mod_port + "->" + fabric_mod_port + "_wwpn = wwpn;\n"
+		buf += "	struct target_fabric_configfs *tf,\n"
+		buf += "	struct config_group *group,\n"
+		buf += "	const char *name)\n"
+		buf += "{\n"
+		buf += "	struct " + fabric_mod_name + "_" + fabric_mod_port + " *" + fabric_mod_port + ";\n"
 
-	buf += "	/* " + fabric_mod_name + "_format_wwn(&" + fabric_mod_port + "->" + fabric_mod_port + "_name[0], " + fabric_mod_name.upper() + "_NAMELEN, wwpn); */\n\n"
-	buf += "	return &" + fabric_mod_port + "->" + fabric_mod_port + "_wwn;\n"
-	buf += "}\n\n"
-	buf += "static void " + fabric_mod_name + "_drop_" + fabric_mod_port + "(struct se_wwn *wwn)\n"
-	buf += "{\n"
-	buf += "	struct " + fabric_mod_name + "_" + fabric_mod_port + " *" + fabric_mod_port + " = container_of(wwn,\n"
-	buf += "				struct " + fabric_mod_name + "_" + fabric_mod_port + ", " + fabric_mod_port + "_wwn);\n"
-	buf += "	kfree(" + fabric_mod_port + ");\n"
-	buf += "}\n\n"
+		if proto_ident in ["FC", "SAS"]:
+			buf += "	u64 wwpn = 0;\n\n"
 
-	buf += "static const struct target_core_fabric_ops " + fabric_mod_name + "_ops = {\n"
-	buf += "	.module				= THIS_MODULE,\n"
-	buf += "	.name				= \"" + fabric_mod_name + "\",\n"
-	buf += "	.get_fabric_name		= " + fabric_mod_name + "_get_fabric_name,\n"
-	buf += "	.tpg_get_wwn			= " + fabric_mod_name + "_get_fabric_wwn,\n"
-	buf += "	.tpg_get_tag			= " + fabric_mod_name + "_get_tag,\n"
-	buf += "	.tpg_check_demo_mode		= " + fabric_mod_name + "_check_false,\n"
-	buf += "	.tpg_check_demo_mode_cache	= " + fabric_mod_name + "_check_true,\n"
-	buf += "	.tpg_check_demo_mode_write_protect = " + fabric_mod_name + "_check_true,\n"
-	buf += "	.tpg_check_prod_mode_write_protect = " + fabric_mod_name + "_check_false,\n"
-	buf += "	.tpg_get_inst_index		= " + fabric_mod_name + "_tpg_get_inst_index,\n"
-	buf += "	.release_cmd			= " + fabric_mod_name + "_release_cmd,\n"
-	buf += "	.sess_get_index			= " + fabric_mod_name + "_sess_get_index,\n"
-	buf += "	.sess_get_initiator_sid		= NULL,\n"
-	buf += "	.write_pending			= " + fabric_mod_name + "_write_pending,\n"
-	buf += "	.write_pending_status		= " + fabric_mod_name + "_write_pending_status,\n"
-	buf += "	.set_default_node_attributes	= " + fabric_mod_name + "_set_default_node_attrs,\n"
-	buf += "	.get_cmd_state			= " + fabric_mod_name + "_get_cmd_state,\n"
-	buf += "	.queue_data_in			= " + fabric_mod_name + "_queue_data_in,\n"
-	buf += "	.queue_status			= " + fabric_mod_name + "_queue_status,\n"
-	buf += "	.queue_tm_rsp			= " + fabric_mod_name + "_queue_tm_rsp,\n"
-	buf += "	.aborted_task			= " + fabric_mod_name + "_aborted_task,\n"
-	buf += "	/*\n"
-	buf += "	 * Setup function pointers for generic logic in target_core_fabric_configfs.c\n"
-	buf += "	 */\n"
-	buf += "	.fabric_make_wwn		= " + fabric_mod_name + "_make_" + fabric_mod_port + ",\n"
-	buf += "	.fabric_drop_wwn		= " + fabric_mod_name + "_drop_" + fabric_mod_port + ",\n"
-	buf += "	.fabric_make_tpg		= " + fabric_mod_name + "_make_tpg,\n"
-	buf += "	.fabric_drop_tpg		= " + fabric_mod_name + "_drop_tpg,\n"
-	buf += "};\n\n"
+		buf += "	/* if (" + fabric_mod_name + "_parse_wwn(name, &wwpn, 1) < 0)\n"
+		buf += "		return ERR_PTR(-EINVAL); */\n\n"
+		buf += "	" + fabric_mod_port + " = kzalloc(sizeof(struct " + fabric_mod_name + "_" + fabric_mod_port + "), GFP_KERNEL);\n"
+		buf += "	if (!" + fabric_mod_port + ") {\n"
+		buf += "		printk(KERN_ERR \"Unable to allocate struct " + fabric_mod_name + "_" + fabric_mod_port + "\");\n"
+		buf += "		return ERR_PTR(-ENOMEM);\n"
+		buf += "	}\n"
 
-	buf += "static int __init " + fabric_mod_name + "_init(void)\n"
-	buf += "{\n"
-	buf += "	return target_register_template(&" + fabric_mod_name + "_ops);\n"
-	buf += "};\n\n"
+		if proto_ident in ["FC", "SAS"]:
+			buf += "	" + fabric_mod_port + "->" + fabric_mod_port + "_wwpn = wwpn;\n"
 
-	buf += "static void __exit " + fabric_mod_name + "_exit(void)\n"
-	buf += "{\n"
-	buf += "	target_unregister_template(&" + fabric_mod_name + "_ops);\n"
-	buf += "};\n\n"
+		buf += "	/* " + fabric_mod_name + "_format_wwn(&" + fabric_mod_port + "->" + fabric_mod_port + "_name[0], " + fabric_mod_name.upper() + "_NAMELEN, wwpn); */\n\n"
+		buf += "	return &" + fabric_mod_port + "->" + fabric_mod_port + "_wwn;\n"
+		buf += "}\n\n"
+		buf += (
+			f"static void {fabric_mod_name}_drop_{fabric_mod_port}"
+			+ "(struct se_wwn *wwn)\n"
+		)
 
-	buf += "MODULE_DESCRIPTION(\"" + fabric_mod_name.upper() + " series fabric driver\");\n"
-	buf += "MODULE_LICENSE(\"GPL\");\n"
-	buf += "module_init(" + fabric_mod_name + "_init);\n"
-	buf += "module_exit(" + fabric_mod_name + "_exit);\n"
+		buf += "{\n"
+		buf += "	struct " + fabric_mod_name + "_" + fabric_mod_port + " *" + fabric_mod_port + " = container_of(wwn,\n"
+		buf += "				struct " + fabric_mod_name + "_" + fabric_mod_port + ", " + fabric_mod_port + "_wwn);\n"
+		buf += "	kfree(" + fabric_mod_port + ");\n"
+		buf += "}\n\n"
 
-	ret = p.write(buf)
-	if ret:
-		tcm_mod_err("Unable to write f: " + f)
+		buf += (
+			f"static const struct target_core_fabric_ops {fabric_mod_name}"
+			+ "_ops = {\n"
+		)
 
-	p.close()
+		buf += "	.module				= THIS_MODULE,\n"
+		buf += "	.name				= \"" + fabric_mod_name + "\",\n"
+		buf += "	.get_fabric_name		= " + fabric_mod_name + "_get_fabric_name,\n"
+		buf += "	.tpg_get_wwn			= " + fabric_mod_name + "_get_fabric_wwn,\n"
+		buf += "	.tpg_get_tag			= " + fabric_mod_name + "_get_tag,\n"
+		buf += "	.tpg_check_demo_mode		= " + fabric_mod_name + "_check_false,\n"
+		buf += "	.tpg_check_demo_mode_cache	= " + fabric_mod_name + "_check_true,\n"
+		buf += "	.tpg_check_demo_mode_write_protect = " + fabric_mod_name + "_check_true,\n"
+		buf += "	.tpg_check_prod_mode_write_protect = " + fabric_mod_name + "_check_false,\n"
+		buf += "	.tpg_get_inst_index		= " + fabric_mod_name + "_tpg_get_inst_index,\n"
+		buf += "	.release_cmd			= " + fabric_mod_name + "_release_cmd,\n"
+		buf += "	.sess_get_index			= " + fabric_mod_name + "_sess_get_index,\n"
+		buf += "	.sess_get_initiator_sid		= NULL,\n"
+		buf += "	.write_pending			= " + fabric_mod_name + "_write_pending,\n"
+		buf += "	.write_pending_status		= " + fabric_mod_name + "_write_pending_status,\n"
+		buf += "	.set_default_node_attributes	= " + fabric_mod_name + "_set_default_node_attrs,\n"
+		buf += "	.get_cmd_state			= " + fabric_mod_name + "_get_cmd_state,\n"
+		buf += "	.queue_data_in			= " + fabric_mod_name + "_queue_data_in,\n"
+		buf += "	.queue_status			= " + fabric_mod_name + "_queue_status,\n"
+		buf += "	.queue_tm_rsp			= " + fabric_mod_name + "_queue_tm_rsp,\n"
+		buf += "	.aborted_task			= " + fabric_mod_name + "_aborted_task,\n"
+		buf += "	/*\n"
+		buf += "	 * Setup function pointers for generic logic in target_core_fabric_configfs.c\n"
+		buf += "	 */\n"
+		buf += "	.fabric_make_wwn		= " + fabric_mod_name + "_make_" + fabric_mod_port + ",\n"
+		buf += "	.fabric_drop_wwn		= " + fabric_mod_name + "_drop_" + fabric_mod_port + ",\n"
+		buf += "	.fabric_make_tpg		= " + fabric_mod_name + "_make_tpg,\n"
+		buf += "	.fabric_drop_tpg		= " + fabric_mod_name + "_drop_tpg,\n"
+		buf += "};\n\n"
+
+		buf += f"static int __init {fabric_mod_name}" + "_init(void)\n"
+		buf += "{\n"
+		buf += "	return target_register_template(&" + fabric_mod_name + "_ops);\n"
+		buf += "};\n\n"
+
+		buf += f"static void __exit {fabric_mod_name}" + "_exit(void)\n"
+		buf += "{\n"
+		buf += "	target_unregister_template(&" + fabric_mod_name + "_ops);\n"
+		buf += "};\n\n"
+
+		buf += "MODULE_DESCRIPTION(\"" + fabric_mod_name.upper() + " series fabric driver\");\n"
+		buf += "MODULE_LICENSE(\"GPL\");\n"
+		buf += f"module_init({fabric_mod_name}" + "_init);\n"
+		buf += f"module_exit({fabric_mod_name}" + "_exit);\n"
+
+		if ret := p.write(buf):
+			tcm_mod_err(f"Unable to write f: {f}")
 
 	return
 
 def tcm_mod_scan_fabric_ops(tcm_dir):
 
+	fabric_ops_api = f"{tcm_dir}include/target/target_core_fabric.h"
+
 	fabric_ops_api = tcm_dir + "include/target/target_core_fabric.h"
 
-	print "Using tcm_mod_scan_fabric_ops: " + fabric_ops_api
 	process_fo = 0;
 
-	p = open(fabric_ops_api, 'r')
+	with open(fabric_ops_api, 'r') as p:
+		line = p.readline()
+		while line:
+			if process_fo == 0 and re.search('struct target_core_fabric_ops {', line):
+				line = p.readline()
+				continue
 
-	line = p.readline()
-	while line:
-		if process_fo == 0 and re.search('struct target_core_fabric_ops {', line):
-			line = p.readline()
-			continue
+			if process_fo == 0:
+				process_fo = 1;
+				line = p.readline()
+				# Search for function pointer
+				if not re.search('\(\*', line):
+					continue
 
-		if process_fo == 0:
-			process_fo = 1;
+				fabric_ops.append(line.rstrip())
+				continue
+
 			line = p.readline()
 			# Search for function pointer
 			if not re.search('\(\*', line):
 				continue
 
 			fabric_ops.append(line.rstrip())
-			continue
 
-		line = p.readline()
-		# Search for function pointer
-		if not re.search('\(\*', line):
-			continue
-
-		fabric_ops.append(line.rstrip())
-
-	p.close()
 	return
 
 def tcm_mod_dump_fabric_ops(proto_ident, fabric_mod_dir_var, fabric_mod_name):

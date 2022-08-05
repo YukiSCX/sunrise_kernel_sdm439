@@ -4,13 +4,12 @@
 import sys
 import re
 
-msrs = dict()
+msrs = {}
 
 with open(sys.argv[1] if len(sys.argv) > 1 else "msr-index.h", "r") as f:
 	for j in f:
-		m = re.match(r'#define (MSR_\w+)\s+(0x[0-9a-fA-F]+)', j)
-		if m:
-			msrs[int(m.group(2), 16)] = m.group(1)
+		if m := re.match(r'#define (MSR_\w+)\s+(0x[0-9a-fA-F]+)', j):
+			msrs[int(m[2], 16)] = m[1]
 
 extra_ranges = (
 	( "MSR_LASTBRANCH_%d_FROM_IP", 0x680, 0x69F ),
@@ -19,10 +18,9 @@ extra_ranges = (
 )
 
 for j in sys.stdin:
-	m = re.search(r'(read|write)_msr:\s+([0-9a-f]+)', j)
-	if m:
+	if m := re.search(r'(read|write)_msr:\s+([0-9a-f]+)', j):
 		r = None
-		num = int(m.group(2), 16)
+		num = int(m[2], 16)
 		if num in msrs:
 			r = msrs[num]
 		else:
@@ -31,7 +29,7 @@ for j in sys.stdin:
 					r = er[0] % (num - er[1],)
 					break
 		if r:
-			j = j.replace(" " + m.group(2), " " + r + "(" + m.group(2) + ")")
-	print j,
+			j = j.replace(" " + m[2], f" {r}(" + m[2] + ")")
+	m = re.search(r'(read|write)_msr:\s+([0-9a-f]+)', j)
 
 

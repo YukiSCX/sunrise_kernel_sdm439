@@ -60,12 +60,6 @@ def diff_msec(src, dst):
 def print_transmit(hunk):
 	if dev != 0 and hunk['dev'].find(dev) < 0:
 		return
-	print "%7s %5d %6d.%06dsec %12.3fmsec      %12.3fmsec" % \
-		(hunk['dev'], hunk['len'],
-		nsecs_secs(hunk['queue_t']),
-		nsecs_nsecs(hunk['queue_t'])/1000,
-		diff_msec(hunk['queue_t'], hunk['xmit_t']),
-		diff_msec(hunk['xmit_t'], hunk['free_t']))
 
 # Format for displaying rx packet processing
 PF_IRQ_ENTRY= "  irq_entry(+%.3fmsec irq=%d:%s)"

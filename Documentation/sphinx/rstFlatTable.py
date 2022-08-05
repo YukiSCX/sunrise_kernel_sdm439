@@ -282,26 +282,18 @@ class ListTableBuilder(object):
         # re-calculate the max columns.
 
         for row in self.rows:
-            if self.max_cols < len(row):
-                self.max_cols = len(row)
-
-        # fill with empty cells or cellspan?
-
-        fill_cells = False
-        if 'fill-cells' in self.directive.options:
-            fill_cells = True
-
+            self.max_cols = max(self.max_cols, len(row))
+        fill_cells = 'fill-cells' in self.directive.options
         for row in self.rows:
-            x =  self.max_cols - len(row)
-            if x and not fill_cells:
-                if row[-1] is None:
+            if x := self.max_cols - len(row):
+                if fill_cells:
+                    for _ in range(x):
+                        row.append( (0, 0, nodes.comment()) )
+                elif row[-1] is None:
                     row.append( ( x - 1, 0, []) )
                 else:
                     cspan, rspan, content = row[-1]
                     row[-1] = (cspan + x, rspan, content)
-            elif x and fill_cells:
-                for i in range(x):
-                    row.append( (0, 0, nodes.comment()) )
 
     def pprint(self):
         # for debugging
@@ -315,14 +307,14 @@ class ListTableBuilder(object):
                 else:
                     content = col[2][0].astext()
                     if len (content) > 30:
-                        content = content[:30] + "..."
+                        content = f"{content[:30]}..."
                     retVal += ('(cspan=%s, rspan=%s, %r)'
                                % (col[0], col[1], content))
                     retVal += "]\n    , "
             retVal = retVal[:-2]
             retVal += "]\n  , "
         retVal = retVal[:-2]
-        return retVal + "]"
+        return f"{retVal}]"
 
     def parseRowItem(self, rowItem, rowNum):
         row = []
@@ -332,8 +324,7 @@ class ListTableBuilder(object):
         target  = None
 
         for child in rowItem:
-            if (isinstance(child , nodes.comment)
-                or isinstance(child, nodes.system_message)):
+            if isinstance(child, (nodes.comment, nodes.system_message)):
                 pass
             elif isinstance(child , nodes.target):
                 target = child

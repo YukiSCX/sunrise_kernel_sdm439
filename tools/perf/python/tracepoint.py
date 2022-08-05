@@ -33,15 +33,5 @@ def main():
             if not isinstance(event, perf.sample_event):
                 continue
 
-            print "time %u prev_comm=%s prev_pid=%d prev_prio=%d prev_state=0x%x ==> next_comm=%s next_pid=%d next_prio=%d" % (
-                   event.sample_time,
-                   event.prev_comm,
-                   event.prev_pid,
-                   event.prev_prio,
-                   event.prev_state,
-                   event.next_comm,
-                   event.next_pid,
-                   event.next_prio)
-
 if __name__ == '__main__':
     main()
